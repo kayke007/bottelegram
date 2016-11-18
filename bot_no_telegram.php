@@ -1,4 +1,5 @@
 <?php
+require_once'conection.php';
 $file = "message_id.txt";
 $fileToken = "fileToken.txt";
 
@@ -12,23 +13,31 @@ for ($i = 1; $i <= 6; $i++) {//gera os 6 numeros
 }
 sort($n); //ordena os n�meros
 $mega = implode(' - ', $n); //exibe os numeros
-//MegaSenafim
+
+
 $request = file_get_contents($url . '/getUpdates');
 $x = json_decode($request, true);
-$xLen = count($x['result']);
-for ($i = 0; $i < $xLen; $i++) {
-    $id = $x['result'][$i]['message']['chat']['id'];
-    $text = $x['result'][$i]['message']['text'];
-    $message = $x['result'][$i]['update_id'];
+$var = count($x['result'])-1;
+for ($i = 0; $i > -1; $i--) {
+    $nome = $x['result'][$i]['message']['from']['first_name'];echo "<br/>";
+    $id = $x['result'][$i]['message']['chat']['id'];echo "<br/>";
+    $text = $x['result'][$i]['message']['text'];echo "<br/>";
+    $message = $x['result'][$i]['update_id'];echo "<br/>";
     $ids[$i] = $id;
     $texts[$i] = $text;
     $messages[$i] = $message;
+ 
 }
+   echo $nome." : ". $text."<BR>". "RESULTADO :".$mega;
+//MegaSenafim
+
+mysqli_query($con,"INSERT INTO resposta (updateid,comando,texto) VALUES ('$id','$text','$mega')");
+mysqli_close($con);
 
 $str = file_get_contents($file);
 $arrUpdateId = explode(',', $str);
 
-for ($i = 0; $i < $xLen; $i++) {
+for ($i = 0; $i < $var; $i++) {
     if (!in_array($messages[$i], $arrUpdateId)) {
         if ($texts[$i] == '/megaSena') {
             $enviar = $url . '/sendMessage?chat_id=' . $ids[$i] . '&text=' . $mega;
@@ -37,4 +46,7 @@ for ($i = 0; $i < $xLen; $i++) {
         }
     }
 }
+
 ?>
+
+
